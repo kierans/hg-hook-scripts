@@ -1,0 +1,30 @@
+#! /bin/bash
+
+CONFLICTS="`hg root`/.hgconflicts"
+[ -s "$CONFLICTS" ] || { vim "$@" ; exit $? ; }
+
+PARENTS=`hg parent "--template=\n" | wc -l`
+[ "$PARENTS" -eq 2 ] || { rm "$CONFLICTS" ; vim "$@" ; exit $? ; }
+
+PREFACE="`hg root`/.hgpreface"
+: > "$PREFACE"
+
+AUTO=`grep ^R < "$CONFLICTS" | wc -l`
+if [ "$AUTO" -gt 0 ] ; then
+	echo Automatically Merged: >> "$PREFACE"
+	grep ^R < "$CONFLICTS" >> "$PREFACE"
+	echo >> "$PREFACE"
+fi
+
+MANUAL=`grep ^U < "$CONFLICTS" | wc -l`
+if [ "$MANUAL" -gt 0 ] ; then
+	echo Manually Merged: >> "$PREFACE"
+	grep ^U < "$CONFLICTS" >> "$PREFACE"
+	echo >> "$PREFACE"
+fi
+
+vim -c "0r ${PREFACE/ /\\ }" "$@"
+STATUS=$?
+rm "$PREFACE"
+
+exit $STATUS

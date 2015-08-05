@@ -1,0 +1,5 @@
+#! /bin/bash
+
+CONFLICTS="`hg root`/.hgconflicts"
+
+hg resolve -l > "$CONFLICTS"
