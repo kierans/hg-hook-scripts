@@ -9,6 +9,11 @@ PARENTS=`hg parent "--template=\n" | wc -l`
 PREFACE="`hg root`/.hgpreface"
 : > "$PREFACE"
 
+MERGE_BRANCH=`hg parent --template '{join(bookmarks,",")}\n' | tail -n 1`
+INTO_BRANCH=`hg parent --template '{join(bookmarks,",")}\n' | head -n 1`
+echo Merge "'$MERGE_BRANCH'" into "'$INTO_BRANCH'" >> "$PREFACE"
+echo "" >> "$PREFACE"
+
 AUTO=`grep ^R < "$CONFLICTS" | wc -l`
 if [ "$AUTO" -gt 0 ] ; then
 	echo Automatically Merged: >> "$PREFACE"
